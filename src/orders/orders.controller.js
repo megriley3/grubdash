@@ -12,17 +12,31 @@ function list(req, res){
   res.json({data: orders})
 }
 
-function dataBodyHas(propertyName){
-  return function(req, res, next){
-    const {data} = req.body;
-    if(data[propertyName]){
-      return next()
-    }
-    if(propertyName === "dishes"){
-      return next({status: 400, message: `Order must include a dish`});
-    }
-    next({status: 400, message: `Order must include a ${propertyName}`});
-  }
+function dataBodyHasDeliverTo(req, res, next){
+  const {data: {deliverTo}} = req.body;
+  if(deliverTo){
+    return next();
+  } 
+  next({status: 400, message: `Order must include a deliverTo`});
+
+}
+
+function dataBodyHasMobileNumber(req, res, next){
+  const {data: {mobileNumber}} = req.body;
+  if(mobileNumber){
+    return next();
+  } 
+  next({status: 400, message: `Order must include a mobileNumber`});
+
+}
+
+function dataBodyHasDishes(req, res, next){
+  const {data: {dishes}} = req.body;
+  if(dishes){
+    return next();
+  } 
+  next({status: 400, message: `Order must include a dish`});
+
 }
 
 function validDishArray(req, res, next){
@@ -42,6 +56,15 @@ function validDishQuantity(req, res, next){
       };
   });
   next();
+}
+
+function dataBodyHasStatus(req, res, next){
+  const {data: {status}} = req.body;
+  if(status){
+    return next();
+  } 
+  next({status: 400, message: `Order must include a status`});
+
 }
 
 function create(req, res){
@@ -120,19 +143,19 @@ function destroy(req, res){
 
 module.exports = {
   list,
-  create: [dataBodyHas("deliverTo"),
-           dataBodyHas("mobileNumber"),
-           dataBodyHas("dishes"),
+  create: [dataBodyHasDeliverTo,
+           dataBodyHasMobileNumber,
+           dataBodyHasDishes,
            validDishArray,
            validDishQuantity,
            create
   ],
   read: [orderExists, read],
   update: [orderExists,
-          dataBodyHas("deliverTo"),
-          dataBodyHas("mobileNumber"),
-          dataBodyHas("dishes"),
-          dataBodyHas("status"),
+          dataBodyHasDeliverTo,
+          dataBodyHasMobileNumber,
+          dataBodyHasDishes,
+          dataBodyHasStatus,
           validDishArray,
           validDishQuantity,
           idMatch,
